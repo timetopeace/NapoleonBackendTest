@@ -1,0 +1,102 @@
+swagger: "2.0"
+info:
+  description: Тестовое задание отдела DDC NapoleonI. API сервиса объявлений.
+  version: "1.0.0"
+  title: "Offer service API"
+  
+
+host: localhost:8080
+basePath: /
+schemes:
+  - http
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    
+paths:
+  /offer:
+    post:
+      summary: Show information about offers.
+      description: If get offer_id show information about offer. If get user_id show information about user offers.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "ID of offer or user."
+        required: true
+        schema:
+          $ref: "#/definitions/UserOfferID"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Offers"
+        400:
+          description: Bad request
+        401:
+          description: AuthenticationFailed
+        403:
+          description: Forbidden
+      security:
+        - Bearer: []
+  /offer/create:
+    post:
+      summary: Create new offer.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Offer parameters."
+        required: true
+        schema:
+          $ref: "#/definitions/OfferCreate"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad request
+        401:
+          description: AuthenticationFailed
+        403:
+          description: Forbidden
+      security:
+        - Bearer: []
+
+definitions:
+  UserOfferID:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      offer_id:
+        type: "integer"
+  Offer:
+    type: "object"
+    properties:
+      offer_id:
+        type: "integer"
+      user_id:
+        type: "integer"
+      title:
+        type: "string"
+      text:
+        type: "string"
+  OfferCreate:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      title:
+        type: "string"
+      text:
+        type: "string"
+  Offers:
+    type: "object"
+    properties:
+      0:
+        type: "object"
+        $ref: "#/definitions/Offer"

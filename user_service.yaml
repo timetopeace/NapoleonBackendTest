@@ -1,0 +1,216 @@
+swagger: "2.0"
+info:
+  description: Тестовое задание отдела DDC NapoleonI. API сервиса авторизации и работы с пользователями.
+  version: "1.0.0"
+  title: "User service API"
+  
+
+host: localhost:8000
+basePath: /
+schemes:
+  - http
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    
+paths:
+  /user/auth:
+    post:
+      summary: Authenticate user and create session.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Username and password of user."
+        required: true
+        schema:
+          $ref: "#/definitions/Auth"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/TokenResponse"
+        401:
+          description: AuthenticationFailed
+  /user/registry:
+    post:
+      summary: Register new user.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User parameters."
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad request
+        401:
+          description: AuthenticationFailed
+  /user/{user_id}:
+    get:
+      summary: Show information about user and user offers.
+      produces:
+        - application/json
+      parameters:
+      - name: "user_id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/User_full"
+        401:
+          description: Token requiered
+        403:
+          description: Forbidden
+        404:
+          description: User not found
+      security:
+        - Bearer: []
+  /user/verify:
+    post:
+      summary: Verify existence of user in database.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User ID."
+        required: true
+        schema:
+          $ref: "#/definitions/UserID"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Verify"
+  /auth:
+    post:
+      summary: Verify JWT token.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User parameters."
+        required: true
+        schema:
+          $ref: "#/definitions/Token"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/CurrentUser"
+        401:
+          description: Token is invalid
+  /auth/refresh-token:
+    post:
+      summary: Refresh JWT tokens.
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User parameters."
+        required: true
+        schema:
+          $ref: "#/definitions/Token"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/TokenResponse"
+        401:
+          description: Invalid refresh session
+          
+definitions:
+  Auth:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+  CurrentUser:
+    type: "object"
+    properties:
+      curr_user_id:
+        type: "integer"
+      curr_user_role:
+        type: "string"
+  Verify:
+    type: "object"
+    properties:
+      verify:
+        type: "boolean"
+  TokenResponse:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      access_token:
+        type: "string"
+      refresh_token:
+        type: "string"
+  Token:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+  User:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      username:
+        type: "string"
+      password:
+        type: "string"
+      email:
+        type: "string"
+      role:
+        type: "string"
+        enum:
+        - "user"
+        - "admin"
+  UserID:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+  Offer:
+    type: "object"
+    properties:
+      offer_id:
+        type: "integer"
+      user_id:
+        type: "integer"
+      title:
+        type: "string"
+      text:
+        type: "string"
+  Offers:
+    type: "object"
+    properties:
+      0:
+        type: "object"
+        $ref: "#/definitions/Offer"
+  User_full:
+    type: "object"
+    properties:
+      user:
+        type: "object"
+        $ref: "#/definitions/User"
+      offers:
+        type: "object"
+        $ref: "#/definitions/Offers"
